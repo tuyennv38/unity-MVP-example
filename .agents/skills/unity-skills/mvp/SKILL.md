@@ -44,9 +44,12 @@ Assets/Scripts/<FeatureName>/
 ├── View/
 │   ├── I<Feature>View.cs          ← Interface cho View
 │   └── <Feature>View.cs           ← MonoBehaviour, implement IView
-└── Presenter/
-    ├── I<Feature>Presenter.cs     ← Interface cho Presenter
-    └── <Feature>Presenter.cs      ← Pure C# class, implement IPresenter
+├── Presenter/
+│   ├── I<Feature>Presenter.cs     ← Interface cho Presenter
+│   └── <Feature>Presenter.cs      ← Pure C# class, implement IPresenter
+└── Tests/                         ← Unit test đóng gói cùng module
+    ├── <Feature>ModelTests.cs
+    └── <Feature>PresenterTests.cs
 ```
 
 ### Luồng dữ liệu
@@ -332,6 +335,39 @@ namespace Features.Inventory.View
 - ✅ Events liệt kê **tất cả** event mà module phát ra (cho Coordinator lắng nghe)
 - ✅ Phụ thuộc ghi rõ data/service cần từ bên ngoài
 - ✅ **Cập nhật MODULE.md** mỗi khi thêm/xóa method hoặc event
+
+### Bước 7: Tạo Unit Test — Đóng gói cùng module
+
+> **BẮT BUỘC.** Test đặt trong module để khi copy/xóa module, test đi cùng.
+
+Đặt test trong `<FeatureName>/Tests/`. Tạo **MockView** để test Presenter mà không cần Unity.
+
+**Cấu trúc file test:**
+
+```csharp
+// MockView — ghi lại mọi lời gọi từ Presenter
+public class Mock<Feature>View : I<Feature>View
+{
+    public int LastValue;
+    public bool MethodCalled;
+
+    public void SetValue(int v) => LastValue = v;
+    public void DoAction() => MethodCalled = true;
+}
+```
+
+**Test Model:** Kiểm tra business logic (validation, cap, events).
+**Test Presenter:** Dùng MockView, kiểm tra Presenter gọi đúng method trên View.
+
+**Checklist Test:**
+- ✅ Đặt trong `<FeatureName>/Tests/` — đóng gói cùng module
+- ✅ Tên file: `<Feature>ModelTests.cs` và `<Feature>PresenterTests.cs`
+- ✅ Model tests **không cần mock** — test trực tiếp
+- ✅ Presenter tests **dùng MockView** implement `IView`
+- ✅ Mỗi test method test **1 hành vi duy nhất**
+- ✅ Test runner: chạy qua `dotnet test Tests/Tests.csproj` từ root project
+
+> **Lưu ý:** File test nằm trong module nhưng được chạy bởi `Tests/Tests.csproj` ở root project thông qua glob link. Khi thêm module mới, thêm dòng link vào `.csproj`.
 
 ---
 
