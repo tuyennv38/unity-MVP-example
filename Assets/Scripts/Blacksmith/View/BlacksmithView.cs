@@ -9,6 +9,8 @@ namespace Features.Blacksmith.View
     {
         [Header("UI References")]
         [SerializeField] private Text livesLabel;
+        [SerializeField] private Button greetButton;
+        [SerializeField] private Button jumpButton;
 
         [Header("Components")]
         [SerializeField] private CharacterMotor motor;
@@ -20,6 +22,23 @@ namespace Features.Blacksmith.View
         {
             _presenter = new BlacksmithPresenter(this);
             _anim = GetComponent<Animator>();
+
+            // Đăng ký sự kiện click cho Button
+            if (greetButton != null)
+                greetButton.onClick.AddListener(OnGreetButtonClicked);
+
+            if (jumpButton != null)
+                jumpButton.onClick.AddListener(OnJumpButtonClicked);
+        }
+
+        void OnDestroy()
+        {
+            // Hủy đăng ký tránh memory leak
+            if (greetButton != null)
+                greetButton.onClick.RemoveListener(OnGreetButtonClicked);
+
+            if (jumpButton != null)
+                jumpButton.onClick.RemoveListener(OnJumpButtonClicked);
         }
 
         // ============================================
