@@ -315,6 +315,16 @@ namespace Features.Inventory.View
 ## Mục đích
 [1-2 câu mô tả nhiệm vụ cốt lõi của module]
 
+## Thành phần (Classes & Interfaces)
+
+| File | Class/Interface | Loại | Ý nghĩa |
+|------|----------------|------|---------|
+| `Model/<Feature>Model.cs` | `<Feature>Model` | Class (POCO) | [Chứa dữ liệu gì, validation gì] |
+| `View/I<Feature>View.cs` | `I<Feature>View` | Interface | Hợp đồng View — method Presenter được phép gọi |
+| `View/<Feature>View.cs` | `<Feature>View` | MonoBehaviour | Implement IView, quản lý UI, delegate event |
+| `Presenter/I<Feature>Presenter.cs` | `I<Feature>Presenter` | Interface | Hợp đồng Presenter — hành động View được phép gọi |
+| `Presenter/<Feature>Presenter.cs` | `<Feature>Presenter` | Class (Pure C#) | Điều phối Model ↔ View |
+
 ## API (IPresenter)
 - `MethodA(params)` — [Mô tả hành động]
 - `MethodB(params)` — [Mô tả hành động]
