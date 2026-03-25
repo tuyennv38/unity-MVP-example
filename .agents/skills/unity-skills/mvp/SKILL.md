@@ -50,6 +50,7 @@ Assets/Scripts/<FeatureName>/
 │   └── <Feature>Presenter.cs       ← Pure C# class, implement IPresenter
 └── Tests/                           ← Unit test đóng gói cùng module
     ├── <FeatureName>.Tests.asmdef   ← BẮT BUỘC: Assembly Definition cho test code
+    ├── TEST_CASES.md                ← BẮT BUỘC: Bảng mô tả test cases
     ├── <Feature>ModelTests.cs
     └── <Feature>PresenterTests.cs
 ```
@@ -463,6 +464,42 @@ namespace Features.<FeatureName>.Tests    // ← Namespace theo convention
 **Test Model:** Kiểm tra business logic (validation, cap, events) — không cần mock.
 **Test Presenter:** Dùng MockView implement `IView`, kiểm tra Presenter gọi đúng method trên View.
 
+#### Bước 7d: Tạo `TEST_CASES.md` — Bảng mô tả test cases
+
+> **BẮT BUỘC.** File này giúp developer và AI Agent nhanh chóng nắm được toàn bộ test cases, tham số, kết quả mong đợi và trạng thái pass/fail.
+
+Đặt trong `Tests/`. Template:
+
+```markdown
+# <Feature> Test Cases
+
+> **Chú thích Status:** ✅ = Passed (kết quả đúng mong đợi) | ❌ = Failed (kết quả không đúng mong đợi)
+
+## <Feature>ModelTests
+
+| Name | Param | Expect | Status |
+|------|-------|--------|--------|
+| Constructor_DefaultValues | — | [giá trị mặc định] | ✅ |
+| MethodName_Scenario | A=x, B=y | Result=z | ✅ |
+
+## <Feature>PresenterTests
+
+| Name | Param | Expect | Status |
+|------|-------|--------|--------|
+| Constructor_InitializesView | — | View.[field]=[value] | ✅ |
+| Action_Scenario | A=x, B=y | View.[field]=[value] | ✅ |
+
+---
+
+> **Tổng:** ✅ N/N passed — YYYY-MM-DD
+```
+
+**Quy tắc cột:**
+- **Name**: Tên test method (theo pattern `Method_Scenario`)
+- **Param**: Các tham số đầu vào, `—` nếu không có
+- **Expect**: Kết quả mong đợi (field=value)
+- **Status**: ✅ nếu test passed, ❌ nếu test failed
+
 **Checklist Test:**
 - ✅ Tạo `<FeatureName>.asmdef` tại thư mục gốc module
 - ✅ Tạo `<FeatureName>.Tests.asmdef` trong `Tests/` — reference production assembly + NUnit
@@ -474,6 +511,8 @@ namespace Features.<FeatureName>.Tests    // ← Namespace theo convention
 - ✅ Presenter tests **dùng MockView** implement `IView`
 - ✅ Mỗi test method test **1 hành vi duy nhất** (pattern AAA: Arrange-Act-Assert)
 - ✅ Không dùng cú pháp `= null!` (C# 9 không hỗ trợ)
+- ✅ Tạo `TEST_CASES.md` trong `Tests/` — bảng 4 cột: Name, Param, Expect, Status (✅/❌)
+- ✅ Cập nhật `TEST_CASES.md` sau mỗi lần chạy test — đánh ✅ hoặc ❌ theo kết quả
 - ✅ Chạy test: **Unity Test Runner** (`Window > General > Test Runner`) hoặc qua MCP `run_tests`
 
 > ⚠️ **KHÔNG dùng `dotnet test`** — Unity có Test Runner riêng tích hợp NUnit. Tất cả test là **EditMode** (pure logic), chạy nhanh trong Editor mà không cần Play Mode.
