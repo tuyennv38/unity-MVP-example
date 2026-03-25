@@ -1,118 +1,120 @@
+using NUnit.Framework;
 using Features.Blacksmith.Model;
 using Features.Blacksmith.Presenter;
 using Features.Blacksmith.View;
 
-namespace Tests;
-
-/// <summary>
-/// Mock View — ghi lại mọi lời gọi từ Presenter để assert.
-/// </summary>
-public class MockBlacksmithView : IBlacksmithView
+namespace Features.Blacksmith.Tests
 {
-    public int LastLives;
-    public int SetLivesCallCount;
-    public string? LastAnimation;
-    public bool JumpCalled;
-
-    public void SetLives(int lives)
+    /// <summary>
+    /// Mock View — ghi lại mọi lời gọi từ Presenter để assert.
+    /// </summary>
+    public class MockBlacksmithView : IBlacksmithView
     {
-        LastLives = lives;
-        SetLivesCallCount++;
+        public int LastLives;
+        public int SetLivesCallCount;
+        public string LastAnimation;
+        public bool JumpCalled;
+
+        public void SetLives(int lives)
+        {
+            LastLives = lives;
+            SetLivesCallCount++;
+        }
+
+        public void PlayAnimation(string name) => LastAnimation = name;
+        public void DoJump() => JumpCalled = true;
     }
 
-    public void PlayAnimation(string name) => LastAnimation = name;
-    public void DoJump() => JumpCalled = true;
-}
-
-[TestFixture]
-public class BlacksmithPresenterTests
-{
-    private MockBlacksmithView _mockView = null!;
-    private BlacksmithPresenter _presenter = null!;
-
-    [SetUp]
-    public void SetUp()
+    [TestFixture]
+    public class BlacksmithPresenterTests
     {
-        _mockView = new MockBlacksmithView();
-        _presenter = new BlacksmithPresenter(_mockView);
-    }
+        private MockBlacksmithView _mockView;
+        private BlacksmithPresenter _presenter;
 
-    // ============================================
-    // Constructor Tests
-    // ============================================
+        [SetUp]
+        public void SetUp()
+        {
+            _mockView = new MockBlacksmithView();
+            _presenter = new BlacksmithPresenter(_mockView);
+        }
 
-    [Test]
-    public void Constructor_InitializesViewWithDefaultLives()
-    {
-        Assert.That(_mockView.LastLives, Is.EqualTo(BlacksmithModel.DefaultLives));
-    }
+        // ============================================
+        // Constructor Tests
+        // ============================================
 
-    [Test]
-    public void Constructor_CallsSetLivesOnce()
-    {
-        // SetLives gọi 1 lần trong constructor
-        Assert.That(_mockView.SetLivesCallCount, Is.EqualTo(1));
-    }
+        [Test]
+        public void Constructor_InitializesViewWithDefaultLives()
+        {
+            Assert.That(_mockView.LastLives, Is.EqualTo(BlacksmithModel.DefaultLives));
+        }
 
-    // ============================================
-    // AddLives Tests
-    // ============================================
+        [Test]
+        public void Constructor_CallsSetLivesOnce()
+        {
+            // SetLives gọi 1 lần trong constructor
+            Assert.That(_mockView.SetLivesCallCount, Is.EqualTo(1));
+        }
 
-    [Test]
-    public void AddLives_UpdatesViewViaModelEvent()
-    {
-        _presenter.AddLives();
+        // ============================================
+        // AddLives Tests
+        // ============================================
 
-        // 10 (default) + 10 (LivesPerPickup) = 20
-        Assert.That(_mockView.LastLives, Is.EqualTo(20));
-    }
+        [Test]
+        public void AddLives_UpdatesViewViaModelEvent()
+        {
+            _presenter.AddLives();
 
-    [Test]
-    public void AddLives_CallsSetLivesAgain()
-    {
-        _presenter.AddLives();
+            // 10 (default) + 10 (LivesPerPickup) = 20
+            Assert.That(_mockView.LastLives, Is.EqualTo(20));
+        }
 
-        // 1 from constructor + 1 from AddLives = 2
-        Assert.That(_mockView.SetLivesCallCount, Is.EqualTo(2));
-    }
+        [Test]
+        public void AddLives_CallsSetLivesAgain()
+        {
+            _presenter.AddLives();
 
-    [Test]
-    public void AddLives_MultipleTimes_AccumulatesCorrectly()
-    {
-        _presenter.AddLives(); // 10 + 10 = 20
-        _presenter.AddLives(); // 20 + 10 = 30
-        _presenter.AddLives(); // 30 + 10 = 40
+            // 1 from constructor + 1 from AddLives = 2
+            Assert.That(_mockView.SetLivesCallCount, Is.EqualTo(2));
+        }
 
-        Assert.That(_mockView.LastLives, Is.EqualTo(40));
-    }
+        [Test]
+        public void AddLives_MultipleTimes_AccumulatesCorrectly()
+        {
+            _presenter.AddLives(); // 10 + 10 = 20
+            _presenter.AddLives(); // 20 + 10 = 30
+            _presenter.AddLives(); // 30 + 10 = 40
 
-    // ============================================
-    // Greet Tests
-    // ============================================
+            Assert.That(_mockView.LastLives, Is.EqualTo(40));
+        }
 
-    [Test]
-    public void Greet_PlaysGreetAnimation()
-    {
-        _presenter.Greet();
-        Assert.That(_mockView.LastAnimation, Is.EqualTo("greet"));
-    }
+        // ============================================
+        // Greet Tests
+        // ============================================
 
-    // ============================================
-    // Jump Tests
-    // ============================================
+        [Test]
+        public void Greet_PlaysGreetAnimation()
+        {
+            _presenter.Greet();
+            Assert.That(_mockView.LastAnimation, Is.EqualTo("greet"));
+        }
 
-    [Test]
-    public void Jump_CallsDoJumpOnView()
-    {
-        _presenter.Jump();
-        Assert.That(_mockView.JumpCalled, Is.True);
-    }
+        // ============================================
+        // Jump Tests
+        // ============================================
 
-    [Test]
-    public void Jump_DoesNotAffectLives()
-    {
-        int livesBefore = _mockView.LastLives;
-        _presenter.Jump();
-        Assert.That(_mockView.LastLives, Is.EqualTo(livesBefore));
+        [Test]
+        public void Jump_CallsDoJumpOnView()
+        {
+            _presenter.Jump();
+            Assert.That(_mockView.JumpCalled, Is.True);
+        }
+
+        [Test]
+        public void Jump_DoesNotAffectLives()
+        {
+            int livesBefore = _mockView.LastLives;
+            _presenter.Jump();
+            Assert.That(_mockView.LastLives, Is.EqualTo(livesBefore));
+        }
     }
 }
