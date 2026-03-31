@@ -55,6 +55,50 @@
 
 Module **Blacksmith** quản lý nhân vật thợ rèn với hệ thống lives, animation chào hỏi và nhảy.
 
+### Sơ đồ luồng hoạt động (Data Flow)
+
+Dưới đây là sơ đồ Mermaid mô tả chi tiết các phương thức giao tiếp giữa View, Presenter, và Model trong các use-case của Blacksmith Module:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / Physics
+    participant V as View (BlacksmithView)
+    participant P as Presenter (BlacksmithPresenter)
+    participant M as Model (BlacksmithModel)
+
+    %% Luồng 1: Thay đổi dữ liệu (Nhặt máu)
+    rect rgb(255, 245, 230)
+    Note right of User: LUỒNG 1: Tương tác dẫn đến thay đổi Dữ liệu (AddLives)
+    User->>V: Va chạm với vật phẩm Health (Collision)
+    V->>P: Gọi AddLives()
+    P->>M: Gọi AddLives(LivesPerPickup)
+    M-->>M: Cập nhật biến Lives (Validation MaxLives)
+    M-->>P: Bắn Event OnLivesChanged?.Invoke(Lives)
+    P->>V: Kích hoạt _view.SetLives(newLives)
+    V-->>User: Cập nhật Text UI lên màn hình
+    end
+
+    %% Luồng 2: Tương tác UI đơn thuần (Greet)
+    rect rgb(245, 240, 255)
+    Note right of User: LUỒNG 2: Tương tác Action/UI đơn thuần (Greet)
+    User->>V: Nhấn Button "Greet"
+    V->>P: Gọi Greet()
+    P->>V: Gọi _view.PlayAnimation("greet")
+    V-->>User: Kích hoạt Animator Trigger chạy Animation
+    end
+
+    %% Luồng 3: Tương tác vật lý
+    rect rgb(230, 245, 255)
+    Note right of User: LUỒNG 3: Chuyển giao logic Vật lý (Jump)
+    User->>V: Nhấn Button "Jump"
+    V->>P: Gọi Jump()
+    P->>V: Gọi _view.DoJump()
+    V->>V: Gọi hàm nội bộ motor.DoJump()
+    V-->>User: CharacterMotor phản hồi lực nhảy lên
+    end
+```
+
 ### Cấu trúc thư mục
 
 ```
